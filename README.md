@@ -1,4 +1,4 @@
-## 367ComputerNetworking
+## 367 Computer Networking
 
 Introduction to computer networks; network architecture and design; protocols, management, physical networks; implementation of network protocols, programming projects in protocol usage and applications.
 
