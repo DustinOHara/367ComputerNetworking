@@ -1,0 +1,102 @@
+\documentclass[12pt]{article}
+
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage[margin=0.95in]{geometry}
+
+\begin{document}
+
+\begin{center}
+	\begin{LARGE}
+		Computer Science 367
+	\end{LARGE}\\
+	\vspace{15pt}
+	\begin{large}
+		Program 2\\
+	\end{large}
+\end{center}
+
+\subsubsection*{Read all of the instructions.  Late work will not be accepted.}
+
+
+\subsection*{Overview}
+In our final network programming assignment, you will implement the server for a simple online chat application. The chat application will consist of two distinct types of clients, which will be provided. The first type of client is a {\it reader}.  Reader clients receive and display a stream of messages from the server in real-time; they do not send any data.  The second type of client is a {\it writer}. A writer's primary job is to send messages.  In a more sophisticated program, both of these clients would be integrated into a single display.  To simplify the implementation of Program 2, we treat these separately.  The server should be able to support up to 255 readers, and an equal number of writers.  The following shows an example output of an reader client.
+
+\begin{verbatim}
+>A new reader has joined
+>A new writer has joined
+>A new reader has joined
+>A new writer has joined
+>hello!
+>hi
+>bye
+A writer has left
+>bye!
+A new writer has joined
+> I'm back!
+> welcome back
+>thanks 
+A writer has left
+A writer has left
+\end{verbatim}
+
+In this program, a range of events can happen at arbitrary times, and your program must be able to respond to them immediately.  At any given time, a new writer or reader could join, a writer or reader could quit, or any of the writer could send a message.  To accommodate this, you must use \verb|select(2)| (or \verb|poll(2)|) in your implementation of Program 2.  \verb|select(2)| is a system call that allows a program to monitor several socket (or file) descriptors, and return as soon as any of them are ready to read (or write, or report an error).  Letting \verb|select| babysit your socket descriptors permits you to react immediately to the aforementioned events.  \verb|poll(2)| is a similar system call with roughly equivalent functionality.
+
+You are responsible for implementing (in the C programming language) the server, using \verb|select(2)| (or \verb|poll(2)|). 
+
+
+\subsubsection*{Command-Line Specification}
+
+The server should take exactly two command-line arguments:
+\begin{enumerate}
+    \item \setlength{\parskip}{-3pt} The port on which your server will listen for readers (a \verb|uint16_t|).
+	\item  The port on which your server will listen for writers (a \verb|uint16_t|).
+\end{enumerate}
+An example command to start the server is:
+\begin{verbatim}
+./prog2_server 36799 46799
+\end{verbatim}
+Either client should take exactly two command-line arguments:
+\begin{enumerate}
+	\item \setlength{\parskip}{-3pt} The name or address of the server (e.g. \verb|cf416-01.cs.wwu.edu| or a 32 bit integer in dotted-decimal notation)
+	\item The port on which the server is running, a 16-bit unsigned integer
+\end{enumerate}
+An example command to run the reader client is:
+\begin{verbatim}
+./demo_reader 127.0.0.1 36799
+\end{verbatim}
+An example command to run the writer client is:
+\begin{verbatim}
+./demo_writer 127.0.0.1 46799
+\end{verbatim}
+
+\subsubsection*{Compilation}
+Your code should be able to compile cleanly with the following commands on CF 416 lab machines:
+\begin{verbatim}
+gcc -o prog2_server server.c
+gcc -o demo_reader reader.c
+gcc -o demo_writer writer.c
+\end{verbatim}
+
+\subsubsection*{Protocol Specification}
+The protocol is summarized by the following high-level rules:
+\begin{itemize}
+    \item \setlength{\parskip}{-3pt} Reader and writer clients may connect and disconnect at any point.
+    \item All messages sent from all writer clients must be sent to all reader clients.
+    \item The server should respond immediately to all messages being sent to it (e.g. messages from active participants, connect attempts, etc.).  It should do so by using the \verb|select| call to monitor all sockets.  {\it No blocking on recv, send or accept!}
+	\item \setlength{\parskip}{-3pt} Connecting and disconnecting clients to the server
+        \begin{itemize}
+            \item \setlength{\parskip}{-3pt} When the server dectects that a new writer has connected
+	    \item Similarly, when the server dectects that a new reader has connected, it should send the message\verb|"A new reader has joined"|.
+            \item When the server detects that an a writer has disconnected, it should send the message \verb|"A writer has left"| to all readers. 
+            \item When the server detects that an reader has disconnected, no message is generated. 
+        \end{itemize}
+\end{itemize}
+
+\subsection*{Submitting your work}
+Submit your implemented \verb|prog2_server.c| file to canvas. Your submission need not and should not contain your compiled binaries / object
+files. I will compile your program, run it in a series of test cases, and review your code.
+
+\subsection*{Academic Honesty}
+To remind you: you must not share code with anyone other than your professor: you must not look at any one else's code or show anyone else your code. You cannot take, in part or in whole, any code from any outside source, including the internet, nor can you post your code to it.  If you need help from any other groups, all involved parties {\it must} step away from the computer and \textit{discuss} strategies and approaches - never code specifics.  I am available for help during office hours.  I am also available via email (do not wait until the last minute to email). If you participate in academic dishonesty, you will fail the course.
+\end{document}
